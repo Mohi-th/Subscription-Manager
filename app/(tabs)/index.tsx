@@ -40,7 +40,7 @@ export default function App() {
               </View>
 
               <View className="mb-5">
-                <ListHeading title="Upcoming " />
+                <ListHeading title="Upcoming" />
                 <FlatList
                   data={UPCOMING_SUBSCRIPTIONS}
                   renderItem={({ item }) => <UpcomingSubscriptionCard {...item} />}
@@ -50,7 +50,7 @@ export default function App() {
                   ListEmptyComponent={<Text className="home-empty-state">No upcoming subscriptions</Text>}
                 />
               </View>
-              <ListHeading title="All Subscriptions " />
+              <ListHeading title="All Subscriptions" />
             </>
           )}
           data={HOME_SUBSCRIPTIONS}
@@ -66,6 +66,7 @@ export default function App() {
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={<Text className="home-empty-state">No subscriptions found</Text>}
           contentContainerClassName="pb-18"
+          keyExtractor={(item)=>item.id}
         />
     </SaveScreen>
   );

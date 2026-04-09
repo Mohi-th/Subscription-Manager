@@ -12,7 +12,7 @@ const SubscriptionsCard = ({ name, price, currency, icon, billing, color, catego
                     <Image source={icon} className='sub-icon' />
                     <View className='sub-copy'>
                         <Text className='sub-title' numberOfLines={1}>{name}</Text>
-                        <Text numberOfLines={1} ellipsizeMode='tail' className='sub-meta'>{category?.trim() || plan?.trim() || (renewalDate ? formatSubscriptionDateTime(renewalDate) : "")}</Text>
+                        <Text numberOfLines={1} ellipsizeMode='tail' className='sub-meta'>{category?.trim() || plan?.trim() || (renewalDate ? formatSubscriptionDateTime(renewalDate) : "N/A")}</Text>
                     </View>
                 </View>
                 <View className='sub-price-box'>
