@@ -7,7 +7,7 @@ const SafeAreaView=styled(RNSafeAreaView);
 
 const SaveScreen = ({children}:{children:React.ReactNode}) => {
   return (
-    <SafeAreaView className="flex-1 items-center justify-center bg-background">
+    <SafeAreaView className="flex-1 p-5 bg-background">
       {children}
     </SafeAreaView>
   )
