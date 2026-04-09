@@ -1,11 +1,12 @@
-import { View, Text } from 'react-native'
+import { Text } from 'react-native'
 import React from 'react'
+import SaveScreen from "../components/SafeAreaView";
 
 const Subscription = () => {
   return (
-    <View>
+    <SaveScreen>
       <Text>Subscription</Text>
-    </View>
+    </SaveScreen>
   )
 }
 
