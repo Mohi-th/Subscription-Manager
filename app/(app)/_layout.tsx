@@ -2,13 +2,12 @@ import { View, Text } from 'react-native'
 import React from 'react'
 import { Stack } from 'expo-router'
 
-function RootLayout(){
+function AppLayout(){
   return (
     <Stack screenOptions={{headerShown:false}}>
-      <Stack.Screen name="SignIn" />
-      <Stack.Screen name="SignUp" />
-    </Stack>  
+      <Stack.Screen name="(tabs)" options={{headerShown:false}}/>
+    </Stack>
   )
 }
 
-export default RootLayout
+export default AppLayout
