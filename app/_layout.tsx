@@ -11,16 +11,12 @@ const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!
 if (!publishableKey) {
   throw new Error('Add your Clerk Publishable Key to the .env file')
 }
+SplashScreen.preventAutoHideAsync()
+
 function RootLayoutContant() {
 
   const { isSignedIn } = useAuth()
 
-<<<<<<< HEAD
-SplashScreen.preventAutoHideAsync()
-
-export default function RootLayout() {
-=======
->>>>>>> 4b79358 (feat : implemented authentication using clerk)
   const [fontsLoaded] = useFonts({
     'sans-regular': require('../assets/fonts/PlusJakartaSans-Regular.ttf'),
     'sans-bold': require('../assets/fonts/PlusJakartaSans-Bold.ttf'),

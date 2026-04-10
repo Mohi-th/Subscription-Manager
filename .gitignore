@@ -3,6 +3,9 @@
 # dependencies
 node_modules/
 
+# IDE files
+.idea/
+
 # Expo
 .expo/
 dist/
@@ -41,3 +44,5 @@ app-example
 # generated native folders
 /ios
 /android
+
+.env
