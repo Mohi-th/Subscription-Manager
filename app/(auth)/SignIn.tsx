@@ -39,8 +39,9 @@ const SignIn = () => {
 
         if (error) {
             console.error(JSON.stringify(error, null, 2));
+            const errorCode = error?.code || "unknown_error";
             captureEvent(posthog, EVENTS.USER_SIGN_IN_FAILED, {
-                error_message: error.message,
+                error_code: errorCode,
             });
             return;
         }
@@ -57,7 +58,7 @@ const SignIn = () => {
                         $set: { email: emailAddress },
                         $set_once: { first_sign_in_date: new Date().toISOString() },
                     });
-                    captureEvent(posthog, EVENTS.USER_SIGNED_IN, { email: emailAddress });
+                    captureEvent(posthog, EVENTS.USER_SIGNED_IN);
 
                     const url = decorateUrl('/(tabs)');
                     if (url.startsWith('http')) {
@@ -103,11 +104,11 @@ const SignIn = () => {
                     }
 
                     // Track successful sign-in after verification
-                    // posthog.identify(emailAddress, {
-                    //     $set: { email: emailAddress },
-                    //     $set_once: { first_sign_in_date: new Date().toISOString() },
-                    // });
-                    // posthog.capture('user_signed_in', { email: emailAddress });
+                    posthog.identify(emailAddress, {
+                        $set: { email: emailAddress },
+                        $set_once: { first_sign_in_date: new Date().toISOString() },
+                    });
+                    captureEvent(posthog, EVENTS.USER_SIGNED_IN);
 
                     const url = decorateUrl('/(tabs)');
                     if (url.startsWith('http')) {
@@ -181,9 +182,9 @@ const SignIn = () => {
 
                                     <Pressable
                                         className={`auth-button ${(!code || fetchStatus === 'fetching') && 'auth-button-disabled'}`}
-                                        onPress={() => {
+                                        onPress={async () => {
                                             captureEvent(posthog, EVENTS.VERIFICATION_SUBMITTED, { screen: 'Sign In' });
-                                            handleVerify();
+                                            await handleVerify();
                                         }}
                                         disabled={!code || fetchStatus === 'fetching'}
                                     >
@@ -194,9 +195,9 @@ const SignIn = () => {
 
                                     <Pressable
                                         className="auth-secondary-button"
-                                        onPress={() => {
+                                        onPress={async () => {
+                                            await signIn.mfa.sendEmailCode();
                                             captureEvent(posthog, EVENTS.VERIFICATION_CODE_RESENT, { screen: 'Sign In' });
-                                            signIn.mfa.sendEmailCode();
                                         }}
                                         disabled={fetchStatus === 'fetching'}
                                     >

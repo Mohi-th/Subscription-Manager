@@ -1,12 +1,14 @@
-import { View, Text } from 'react-native'
 import React from 'react'
 import { Stack } from 'expo-router'
+import { SubscriptionsProvider } from '@/lib/SubscriptionsContext'
 
-function AppLayout(){
+function AppLayout() {
   return (
-    <Stack screenOptions={{headerShown:false}}>
-      <Stack.Screen name="(tabs)" options={{headerShown:false}}/>
-    </Stack>
+    <SubscriptionsProvider>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
+    </SubscriptionsProvider>
   )
 }
 

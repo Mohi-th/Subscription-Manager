@@ -417,4 +417,98 @@
     .category-chip-text-active {
         @apply text-accent;
     }
+
+    /* ── Subscriptions page ─────────────────────────── */
+
+    .subs-page-title {
+        @apply text-3xl font-sans-bold text-primary mb-2;
+    }
+
+    .subs-summary-strip {
+        @apply flex-row items-center justify-between rounded-2xl border border-border bg-card px-5 py-4 mb-4;
+    }
+
+    .subs-summary-item {
+        @apply flex-1 items-center;
+    }
+
+    .subs-summary-value {
+        @apply text-xl font-sans-bold text-primary;
+    }
+
+    .subs-summary-label {
+        @apply mt-0.5 text-xs font-sans-medium text-muted-foreground;
+    }
+
+    .subs-summary-divider {
+        @apply h-8 w-px bg-border;
+    }
+
+    .subs-search-wrap {
+        @apply flex-row items-center rounded-2xl border border-border bg-card px-4 py-1 mb-3;
+    }
+
+    .subs-search-icon {
+        @apply mr-2 text-base;
+    }
+
+    .subs-search-input {
+        @apply flex-1 py-3 text-base font-sans-medium text-primary;
+    }
+
+    .subs-search-clear {
+        @apply ml-2 size-7 items-center justify-center rounded-full bg-muted;
+    }
+
+    .subs-search-clear-text {
+        @apply text-xs font-sans-bold text-muted-foreground;
+    }
+
+    .subs-filter-row {
+        @apply flex-row gap-2 mb-4;
+    }
+
+    .subs-filter-chip {
+        @apply rounded-full border border-border bg-background px-4 py-2;
+    }
+
+    .subs-filter-chip-active {
+        @apply border-accent bg-accent/10;
+    }
+
+    .subs-filter-chip-text {
+        @apply text-sm font-sans-semibold text-muted-foreground;
+    }
+
+    .subs-filter-chip-text-active {
+        @apply text-accent;
+    }
+
+    .subs-result-count {
+        @apply mb-3 text-sm font-sans-medium text-muted-foreground;
+    }
+
+    .subs-empty {
+        @apply items-center py-12;
+    }
+
+    .subs-empty-emoji {
+        @apply text-5xl mb-3;
+    }
+
+    .subs-empty-title {
+        @apply text-lg font-sans-bold text-primary mb-1;
+    }
+
+    .subs-empty-subtitle {
+        @apply text-sm font-sans-medium text-muted-foreground text-center max-w-[260px];
+    }
+
+    .subs-empty-reset {
+        @apply mt-4 rounded-full border border-accent bg-accent/10 px-5 py-2.5;
+    }
+
+    .subs-empty-reset-text {
+        @apply text-sm font-sans-semibold text-accent;
+    }
 }

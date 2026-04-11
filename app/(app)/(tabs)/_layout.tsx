@@ -14,7 +14,7 @@ const TabLayout = () => {
 
   const insets = useSafeAreaInsets()
   const posthog = usePostHog()
-  const previousTab = useRef<string>('index')
+  const previousTab = useRef<string | null>(null)
 
   const TabIcon = ({ focused, icon }: TabIconProps) => {
     return (
@@ -35,7 +35,12 @@ const TabLayout = () => {
             const routes = data.state.routes;
             const index = data.state.index;
             const currentRoute = routes[index];
-            if (currentRoute && currentRoute.name !== previousTab.current) {
+            if (!currentRoute) return;
+            if (previousTab.current === null) {
+              previousTab.current = currentRoute.name;
+              return;
+            }
+            if (currentRoute.name !== previousTab.current) {
               captureEvent(posthog, EVENTS.TAB_SWITCHED, {
                 from_tab: previousTab.current,
                 to_tab: currentRoute.name,

@@ -26,6 +26,18 @@ export const EVENTS = {
   SUBSCRIPTION_CARD_COLLAPSED: 'subscription_card_collapsed',
   SUBSCRIPTION_DETAIL_VIEWED: 'subscription_detail_viewed',
 
+  // Subscription creation
+  CREATE_MODAL_OPENED: 'create_modal_opened',
+  CREATE_MODAL_CLOSED: 'create_modal_closed',
+  SUBSCRIPTION_CREATED: 'subscription_created',
+  CREATE_FREQUENCY_CHANGED: 'create_frequency_changed',
+  CREATE_CATEGORY_SELECTED: 'create_category_selected',
+
+  // Search & filters
+  SUBSCRIPTION_SEARCHED: 'subscription_searched',
+  SUBSCRIPTION_FILTER_CHANGED: 'subscription_filter_changed',
+  SUBSCRIPTION_FILTERS_CLEARED: 'subscription_filters_cleared',
+
   // Settings
   SIGN_OUT_CLICKED: 'sign_out_clicked',
 

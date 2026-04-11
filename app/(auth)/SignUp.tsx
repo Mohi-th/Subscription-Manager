@@ -61,7 +61,7 @@ const SignUp = () => {
                 $set: { email: emailAddress },
                 $set_once: { sign_up_date: new Date().toISOString() },
             });
-            captureEvent(posthog, EVENTS.USER_SIGNED_UP, { email: emailAddress });
+            captureEvent(posthog, EVENTS.USER_SIGNED_UP);
             await signUp.finalize({
                 navigate: ({ session, decorateUrl }) => {
                     if (session?.currentTask) {

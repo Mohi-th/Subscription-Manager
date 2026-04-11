@@ -1,10 +1,12 @@
 
-import { HOME_BALANCE, HOME_SUBSCRIPTIONS, HOME_USER, UPCOMING_SUBSCRIPTIONS } from "@/constants/data";
+import { HOME_BALANCE, UPCOMING_SUBSCRIPTIONS } from "@/constants/data";
 import { icons } from "@/constants/icons";
 import images from "@/constants/images";
 import { formatCurrency } from "@/lib/utils";
 import { useTrackScreen, EVENTS, captureEvent } from "@/lib/analytics";
+import { useSubscriptions } from "@/lib/SubscriptionsContext";
 import { usePostHog } from "posthog-react-native";
+import { useUser } from "@clerk/expo";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { FlatList, Image, Pressable, Text, View } from "react-native";
@@ -12,14 +14,26 @@ import ListHeading from "../../components/ListHeading";
 import SaveScreen from "../../components/SafeAreaView";
 import SubscriptionsCard from "../../components/SubscriptionsCard";
 import UpcomingSubscriptionCard from "../../components/UpcomingSubscriptionCard";
+import CreateSubscriptionModal from "../../components/CreateSubscriptionModal";
 
 export default function App() {
   const posthog = usePostHog();
+  const { user } = useUser();
   useTrackScreen('Home');
 
+  const { subscriptions, addSubscription } = useSubscriptions();
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<string | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
-  const handleToggleCard = (item: typeof HOME_SUBSCRIPTIONS[0]) => {
+  const displayName = user?.firstName
+    ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ''}`
+    : user?.fullName || user?.emailAddresses[0]?.emailAddress || 'User';
+
+  const avatarSource = user?.imageUrl
+    ? { uri: user.imageUrl }
+    : images.avatar;
+
+  const handleToggleCard = (item: Subscription) => {
     const isExpanding = expandedSubscriptionId !== item.id;
     setExpandedSubscriptionId((prev) => prev === item.id ? null : item.id);
 
@@ -32,8 +46,17 @@ export default function App() {
   };
 
   const handleAddPress = () => {
-    captureEvent(posthog, EVENTS.ADD_BUTTON_CLICKED, {
-      screen: 'Home',
+    captureEvent(posthog, EVENTS.ADD_BUTTON_CLICKED, { screen: 'Home' });
+    setModalVisible(true);
+  };
+
+  const handleCreateSubscription = (subscription: Subscription) => {
+    addSubscription(subscription);
+    captureEvent(posthog, EVENTS.SUBSCRIPTION_CREATED, {
+      subscription_name: subscription.name,
+      subscription_price: subscription.price,
+      subscription_billing: subscription.billing,
+      subscription_category: subscription.category,
     });
   };
 
@@ -44,8 +67,8 @@ export default function App() {
           <>
             <View className="home-header">
               <View className="home-user">
-                <Image source={images.avatar} className="home-avatar" />
-                <Text className="home-user-name">{HOME_USER.name}</Text>
+                <Image source={avatarSource} className="home-avatar" />
+                <Text className="home-user-name">{displayName}</Text>
               </View>
               <Pressable onPress={handleAddPress}>
                 <Image source={icons.add} className="home-add-icon" />
@@ -77,7 +100,7 @@ export default function App() {
             <ListHeading title="All Subscriptions " />
           </>
         )}
-        data={HOME_SUBSCRIPTIONS}
+        data={subscriptions}
         renderItem={({ item }) => (
           <SubscriptionsCard
             {...item}
@@ -91,6 +114,12 @@ export default function App() {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={<Text className="home-empty-state">No subscriptions found</Text>}
         contentContainerClassName="pb-18"
+      />
+
+      <CreateSubscriptionModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onSubmit={handleCreateSubscription}
       />
     </SaveScreen>
   );

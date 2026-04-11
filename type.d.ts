@@ -27,6 +27,10 @@ declare global {
         frequency?: string;
         renewalDate?: string;
         color?: string;
+        /** Vector icon name from @expo/vector-icons (used for user-created subs) */
+        categoryIconName?: string;
+        /** Vector icon family, e.g. "MaterialCommunityIcons" */
+        categoryIconFamily?: string;
     }
 
     interface SubscriptionCardProps extends Omit<Subscription, "id"> {
