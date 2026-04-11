@@ -4,7 +4,8 @@ import { useSignUp, useAuth } from '@clerk/expo';
 import { useState } from 'react';
 import { SafeAreaView as RNSafeAreaView } from 'react-native-safe-area-context';
 import { styled } from 'nativewind';
-// import { usePostHog } from 'posthog-react-native';
+import { usePostHog } from 'posthog-react-native';
+import { useTrackScreen, EVENTS, captureEvent } from '@/lib/analytics';
 
 const SafeAreaView = styled(RNSafeAreaView);
 
@@ -12,7 +13,9 @@ const SignUp = () => {
     const { signUp, errors, fetchStatus } = useSignUp();
     const { isSignedIn } = useAuth();
     const router = useRouter();
-    // const posthog = usePostHog();
+    const posthog = usePostHog();
+
+    useTrackScreen('Sign Up');
 
     const [emailAddress, setEmailAddress] = useState('');
     const [password, setPassword] = useState('');
@@ -36,21 +39,16 @@ const SignUp = () => {
 
 
         if (error) {
-            console.error(JSON.stringify(error, null, 2))
-            return
+            console.error(JSON.stringify(error, null, 2));
+            captureEvent(posthog, EVENTS.USER_SIGN_UP_FAILED, {
+                error_message: error.message,
+            });
+            return;
         }
-
-
-        // if (error) {
-        //     console.error(JSON.stringify(error, null, 2));
-        //     posthog.capture('user_sign_up_failed', {
-        //         error_message: error.message,
-        //     });
-        //     return;
-        // }
         // Send verification email
 
         await signUp.verifications.sendEmailCode();
+        captureEvent(posthog, EVENTS.VERIFICATION_CODE_SENT, { screen: 'Sign Up', email: emailAddress });
 
     };
 
@@ -59,6 +57,11 @@ const SignUp = () => {
         await signUp.verifications.verifyEmailCode({ code });
 
         if (signUp.status === 'complete') {
+            posthog.identify(emailAddress, {
+                $set: { email: emailAddress },
+                $set_once: { sign_up_date: new Date().toISOString() },
+            });
+            captureEvent(posthog, EVENTS.USER_SIGNED_UP, { email: emailAddress });
             await signUp.finalize({
                 navigate: ({ session, decorateUrl }) => {
                     if (session?.currentTask) {
@@ -147,7 +150,10 @@ const SignUp = () => {
 
                                     <Pressable
                                         className={`auth-button ${(!code || fetchStatus === 'fetching') && 'auth-button-disabled'}`}
-                                        onPress={handleVerify}
+                                        onPress={() => {
+                                            captureEvent(posthog, EVENTS.VERIFICATION_SUBMITTED, { screen: 'Sign Up' });
+                                            handleVerify();
+                                        }}
                                         disabled={!code || fetchStatus === 'fetching'}
                                     >
                                         <Text className="auth-button-text">
@@ -157,7 +163,10 @@ const SignUp = () => {
 
                                     <Pressable
                                         className="auth-secondary-button"
-                                        onPress={() => signUp.verifications.sendEmailCode()}
+                                        onPress={() => {
+                                            captureEvent(posthog, EVENTS.VERIFICATION_CODE_RESENT, { screen: 'Sign Up' });
+                                            signUp.verifications.sendEmailCode();
+                                        }}
                                         disabled={fetchStatus === 'fetching'}
                                     >
                                         <Text className="auth-secondary-button-text">Resend Code</Text>
@@ -264,7 +273,7 @@ const SignUp = () => {
                         <View className="auth-link-row">
                             <Text className="auth-link-copy">Already have an account?</Text>
                             <Link href="/(auth)/SignIn" asChild>
-                                <Pressable>
+                                <Pressable onPress={() => captureEvent(posthog, EVENTS.NAVIGATE_TO_SIGN_IN, { from: 'Sign Up' })}>
                                     <Text className="auth-link">Sign In</Text>
                                 </Pressable>
                             </Link>

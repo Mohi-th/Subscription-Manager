@@ -3,20 +3,24 @@ import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import { useClerk, useUser } from '@clerk/expo';
 import images from '@/constants/images';
-// import { usePostHog } from 'posthog-react-native';
+import { usePostHog } from 'posthog-react-native';
+import { useTrackScreen, EVENTS, captureEvent } from '@/lib/analytics';
 const SafeAreaView = styled(RNSafeAreaView);
 
 const Settings = () => {
     const { signOut } = useClerk();
     const { user } = useUser();
-    // const posthog = usePostHog();
+    const posthog = usePostHog();
+
+    useTrackScreen('Settings');
 
     const handleSignOut = async () => {
-        // posthog.capture('user_signed_out');
+        captureEvent(posthog, EVENTS.SIGN_OUT_CLICKED);
+        captureEvent(posthog, EVENTS.USER_SIGNED_OUT);
         try {
             await signOut();
             // Only reset analytics after successful sign-out
-            // posthog.reset();
+            posthog.reset();
         } catch (error) {
             console.error('Sign-out failed:', error);
             // Don't reset analytics if sign-out failed

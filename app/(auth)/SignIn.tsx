@@ -4,13 +4,17 @@ import { useSignIn } from '@clerk/expo';
 import { useState } from 'react';
 import { SafeAreaView as RNSafeAreaView } from 'react-native-safe-area-context';
 import { styled } from 'nativewind';
+import { usePostHog } from 'posthog-react-native';
+import { useTrackScreen, EVENTS, captureEvent } from '@/lib/analytics';
 
 const SafeAreaView = styled(RNSafeAreaView);
 
 const SignIn = () => {
     const { signIn, errors, fetchStatus } = useSignIn();
     const router = useRouter();
-    // const posthog = usePostHog();
+    const posthog = usePostHog();
+
+    useTrackScreen('Sign In');
 
     const [emailAddress, setEmailAddress] = useState('');
     const [password, setPassword] = useState('');
@@ -33,20 +37,13 @@ const SignIn = () => {
             password,
         });
 
-        console.log(emailAddress,password)
-
         if (error) {
             console.error(JSON.stringify(error, null, 2));
+            captureEvent(posthog, EVENTS.USER_SIGN_IN_FAILED, {
+                error_message: error.message,
+            });
             return;
         }
-
-        // if (error) {
-        //     console.error(JSON.stringify(error, null, 2));
-        //     posthog.capture('user_sign_in_failed', {
-        //         error_message: error.message,
-        //     });
-        //     return;
-        // }
 
         if (signIn.status === 'complete') {
             await signIn.finalize({
@@ -56,11 +53,11 @@ const SignIn = () => {
                         return;
                     }
 
-                    // posthog.identify(emailAddress, {
-                    //     $set: { email: emailAddress },
-                    //     $set_once: { first_sign_in_date: new Date().toISOString() },
-                    // });
-                    // posthog.capture('user_signed_in', { email: emailAddress });
+                    posthog.identify(emailAddress, {
+                        $set: { email: emailAddress },
+                        $set_once: { first_sign_in_date: new Date().toISOString() },
+                    });
+                    captureEvent(posthog, EVENTS.USER_SIGNED_IN, { email: emailAddress });
 
                     const url = decorateUrl('/(tabs)');
                     if (url.startsWith('http')) {
@@ -87,6 +84,7 @@ const SignIn = () => {
 
             if (emailCodeFactor) {
                 await signIn.mfa.sendEmailCode();
+                captureEvent(posthog, EVENTS.VERIFICATION_CODE_SENT, { method: 'email_code' });
             }
         } else {
             console.error('Sign-in attempt not complete:', signIn);
@@ -183,7 +181,10 @@ const SignIn = () => {
 
                                     <Pressable
                                         className={`auth-button ${(!code || fetchStatus === 'fetching') && 'auth-button-disabled'}`}
-                                        onPress={handleVerify}
+                                        onPress={() => {
+                                            captureEvent(posthog, EVENTS.VERIFICATION_SUBMITTED, { screen: 'Sign In' });
+                                            handleVerify();
+                                        }}
                                         disabled={!code || fetchStatus === 'fetching'}
                                     >
                                         <Text className="auth-button-text">
@@ -193,7 +194,10 @@ const SignIn = () => {
 
                                     <Pressable
                                         className="auth-secondary-button"
-                                        onPress={() => signIn.mfa.sendEmailCode()}
+                                        onPress={() => {
+                                            captureEvent(posthog, EVENTS.VERIFICATION_CODE_RESENT, { screen: 'Sign In' });
+                                            signIn.mfa.sendEmailCode();
+                                        }}
                                         disabled={fetchStatus === 'fetching'}
                                     >
                                         <Text className="auth-secondary-button-text">Resend Code</Text>
@@ -305,7 +309,7 @@ const SignIn = () => {
                         <View className="auth-link-row">
                             <Text className="auth-link-copy">Don't have an account?</Text>
                             <Link href="/(auth)/SignUp" asChild>
-                                <Pressable>
+                                <Pressable onPress={() => captureEvent(posthog, EVENTS.NAVIGATE_TO_SIGN_UP, { from: 'Sign In' })}>
                                     <Text className="auth-link">Create Account</Text>
                                 </Pressable>
                             </Link>
